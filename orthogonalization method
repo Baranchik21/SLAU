@@ -1,1 +1,115 @@
+#include <iostream>
+#include <math.h>
 
+using namespace std;
+
+double svec(double* vector1, double* vector2, int n) {
+	double result = 0;
+	for (int i = 0; i < n; i++) {
+		result += vector1[i] * vector2[i];
+	}
+	return result;
+}
+
+void vplusv(double* vector1, double* vector2, int n, double* result) {
+	for (int i = 0; i < n; i++) {
+		result[i] = vector1[i] + vector2[i];
+	}
+}
+
+void rowtovector(double** matrix, int n, int row, double* vectorrow) {
+	for (int i = 0; i < n; i++) {
+		vectorrow[i] = matrix[row][i];
+	}
+}
+
+void vdnum(double* vector, int n, double num, double* result) {
+	for (int i = 0; i < n; i++) {
+		result[i] = vector[i] / num;
+	}
+}
+
+void vmnum(double* vector, int n, double num, double* result) {
+	for (int i = 0; i < n; i++) {
+		result[i] = vector[i] * num;
+	}
+}
+
+int main() {
+	setlocale(LC_ALL, "Russian");
+
+	double suu;
+	int n, il;
+	cout << "метод ортогонализации. введите разрядность матрицы\n" << endl;
+	cin >> n;
+
+	double** u = new double* [n];
+	for (int i = 0; i < n; i++) {
+		u[i] = new double[n];
+	}
+
+	double** b = new double* [n];
+	for (int i = 0; i < n; i++) {
+		b[i] = new double[n];
+	}
+
+	double* c = new double[n];
+
+	double** a = new double* [n];
+	for (int i = 0; i < n; i++) {
+		a[i] = new double[n];
+	}
+
+	double** cb = new double* [n];
+	for (int i = 0; i < n; i++) {
+		cb[i] = new double[n];
+	}
+
+	double* answer = new double[n];
+
+	double** A = new double* [n];
+	for (int i = 0; i < n; i++) {
+		A[i] = new double[n];
+	}
+	cout << "Введите первую матрицу\n";
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			cout << "Введите " << i << " - строку, " << j << " - столбец \n";
+			cin >> A[i][j];
+		}
+	}
+
+	//shag 1
+
+	rowtovector(A, n, 0, u[0]);
+	suu = svec(u[0], u[0], n);
+	vdnum(u[0], n, sqrt(suu), b[0]);
+	//shag 2
+	for (int i = 1; i < n; i++) {
+		rowtovector(A, n, i, a[i]);
+		rowtovector(A, n, i, u[i]);
+		for (int l = 0; l < i; l++) {
+			c[l] = -svec(a[i], b[l], n);
+			vmnum(b[l], n, c[l], cb[l]);
+			if (l > 0) {
+				vplusv(cb[l], cb[l - 1], n, cb[l]);
+			}
+			il = l;
+		}
+		vplusv(cb[il], u[i], n, u[i]);
+		suu = svec(u[i], u[i], n);
+		vdnum(u[i], n, sqrt(suu), b[i]);
+
+		//cout << "sqrt(suu) =     " << sqrt(suu) << "\n";
+
+	}
+
+	vdnum(b[n - 1], n, b[n - 1][n - 1], answer);
+
+	for (int i = 0; i < n; i++) {
+		cout << "x" << i + 1 << " = " << answer[i] << "\n";
+	}
+
+	system("pause");
+	return 0;
+}
